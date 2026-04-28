@@ -1,0 +1,29 @@
+name: FastAPI Kubernetes Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and publish API image
+        run: |
+          echo "docker build -t registry.example.com/fastapi-app:${GITHUB_SHA} ."
+          echo "docker push registry.example.com/fastapi-app:${GITHUB_SHA}"
+
+  deploy-k8s:
+    runs-on: ubuntu-latest
+    needs: build-image
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply cluster resources
+        run: |
+          echo "kubectl apply -f k8s/"
+          echo "kubectl rollout status deployment/fastapi-app"
